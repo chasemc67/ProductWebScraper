@@ -6,13 +6,12 @@
 # -*- coding: utf-8 -*-
 import scrapy
 
+from scrapy.utils.response import open_in_browser
 
 class KarchersiteSpider(scrapy.Spider):
     name = 'karcherSite'
-    allowed_domains = ['https://www.kaercher.com/us/professional.html']
+    # allowed_domains = ['kaercher.com/']
     start_urls = ['https://www.kaercher.com/us/professional.html/']
-
-    products = [];
 
 
 # get categories
@@ -29,26 +28,38 @@ class KarchersiteSpider(scrapy.Spider):
 
     def parse(self, response):
         for category in response.css(".product-item"):
+            #next_page = category.css(".headlinebottom a::attr('href')").extract_first()
+            #next_page = response.urljoin(next_page)
             yield {
                 'title': category.css(".headlinebottom a::text").extract_first(),
                 'link': category.css(".headlinebottom a::attr('href')").extract_first()
             }
+        for href in response.css(".product-item .headlinebottom a::attr('href')"):
+            #yield response.follow(href, callback=self.parseSubCat)
+            yield response.follow(href, callback=self.parseSubCat)
+
+            # for href in response.css(".product-item .headlinebottom a::attr('href')"):
+            #     #yield response.follow(href, callback=self.parseSubCat)
+            #     yield response.follow(href, callback=self.parse)
+            
+        
+            
         
 
-        next_page = response.css(".product-item .headlinebottom a::attr('href')").extract_first()
+        # next_page = response.css(".product-item .headlinebottom a::attr('href')").extract_first()
         
-        if next_page is not None:
-            next_page = response.urljoin(next_page)
-            yield scrapy.Request(next_page, callback=self.parseSubCat)
+        # if next_page is not None:
+        #     next_page = response.urljoin(next_page)
+        #     yield scrapy.Request(next_page, callback=self.parseSubCat)
 
         #response.follow(categoryLinks[0], self.parse)
         #print(response)
         #view(response)
-        pass
 
     
     def parseSubCat(self, response):
-        yield {
-            'test': "test"
-        }
-        pass
+        #open_in_browser(response)
+        for subCat in response.css('a::attr("href")').extract():
+            yield {
+                'test': subCat
+            }
