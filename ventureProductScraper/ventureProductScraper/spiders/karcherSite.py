@@ -28,15 +28,15 @@ class KarchersiteSpider(scrapy.Spider):
 
     def parse(self, response):
         for category in response.css(".product-item"):
-            #next_page = category.css(".headlinebottom a::attr('href')").extract_first()
+            next_page = category.css(".headlinebottom a::attr('href')").extract_first()
             #next_page = response.urljoin(next_page)
-            yield {
-                'title': category.css(".headlinebottom a::text").extract_first(),
-                'link': category.css(".headlinebottom a::attr('href')").extract_first()
-            }
+            # yield {
+            #     'title': category.css(".headlinebottom a::text").extract_first(),
+            #     'link': category.css(".headlinebottom a::attr('href')").extract_first()
+            # }
         for href in response.css(".product-item .headlinebottom a::attr('href')"):
             #yield response.follow(href, callback=self.parseSubCat)
-            yield response.follow(href, callback=self.parseSubCat)
+            yield response.follow(href, callback=self.parseSubCat, meta={'category': "test title"})
 
             # for href in response.css(".product-item .headlinebottom a::attr('href')"):
             #     #yield response.follow(href, callback=self.parseSubCat)
@@ -57,9 +57,9 @@ class KarchersiteSpider(scrapy.Spider):
         #view(response)
 
     
-    def parseSubCat(self, response):
+    def parseSubCat(self, response, ):
         #open_in_browser(response)
         for subCat in response.css('a::attr("href")').extract():
             yield {
-                'test': subCat
+                'category': response.request.meta['title']
             }
