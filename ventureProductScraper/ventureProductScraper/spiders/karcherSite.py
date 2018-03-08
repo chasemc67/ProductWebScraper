@@ -31,32 +31,6 @@ class KarchersiteSpider(scrapy.Spider):
             categoryName = category.css(".headlinebottom a::text").extract_first()
             for href in category.css(".headlinebottom a::attr('href')"):
                 yield response.follow(href, callback=self.parseSubCat, meta={'category': categoryName})
-            #next_page = response.urljoin(next_page)
-            # yield {
-            #     'title': category.css(".headlinebottom a::text").extract_first(),
-            #     'link': category.css(".headlinebottom a::attr('href')").extract_first()
-            # }
-        #for href in response.css(".product-item .headlinebottom a::attr('href')"):
-            #yield response.follow(href, callback=self.parseSubCat)
-          #  yield response.follow(href, callback=self.parseSubCat, meta={'category': "test title"})
-
-            # for href in response.css(".product-item .headlinebottom a::attr('href')"):
-            #     #yield response.follow(href, callback=self.parseSubCat)
-            #     yield response.follow(href, callback=self.parse)
-            
-        
-            
-        
-
-        # next_page = response.css(".product-item .headlinebottom a::attr('href')").extract_first()
-        
-        # if next_page is not None:
-        #     next_page = response.urljoin(next_page)
-        #     yield scrapy.Request(next_page, callback=self.parseSubCat)
-
-        #response.follow(categoryLinks[0], self.parse)
-        #print(response)
-        #view(response)
     
     def parseSubCat(self, response):
         #open_in_browser(response)
