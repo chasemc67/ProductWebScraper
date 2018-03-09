@@ -36,7 +36,7 @@ class KarchersiteSpider(scrapy.Spider):
                 yield{
                 #    'image',
                     'title': parsedTitle,
-                    'description': description,
+                    'description': description.split('<p property=\"description\">')[1].split('</p>')[0],
                     'category': category
                 #    'subcategories',
                 #    'technical-data'
