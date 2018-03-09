@@ -39,7 +39,7 @@ class KarchersiteSpider(scrapy.Spider):
     def parsedSubCatsFromResp(self, response):
         subCategories = response.css('#breadcrumbs li').extract();
         finalCats = []
-        for i in range(3,len(subCategories)):
+        for i in range(3,len(subCategories)-1):
             finalCats.append(subCategories[i].split('property=\"name\">')[1].split('</span')[0])
         return str(finalCats)
 
@@ -48,6 +48,7 @@ class KarchersiteSpider(scrapy.Spider):
             if response.css('.product-box.product-salesdata'):
                 yield{
                 #    'image',
+                    'productUrl': response.url, 
                     'title': self.parsedTitleFromResp(response),
                     'description': self.parsedDescFromResp(response),
                     'category': self.parsedCatFromResp(response),
