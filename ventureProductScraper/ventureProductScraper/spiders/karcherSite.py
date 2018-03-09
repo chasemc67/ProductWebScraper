@@ -14,19 +14,6 @@ class KarchersiteSpider(scrapy.Spider):
     # allowed_domains = ['kaercher.com/']
     start_urls = ['https://www.kaercher.com/us/professional.html/']
 
-
-# get categories
-# get images for categories
-# get urls to category items
-    #get subcategory titles
-    #click on subCategory
-        #navigate to product
-        #create new product object in code
-        #save description
-        #save image
-        #tag subCategory
-        #tag category
-
     def parse(self, response):
         if response.url.find('professional') > -1:
             if response.css('.product-box.product-salesdata'):
@@ -37,15 +24,20 @@ class KarchersiteSpider(scrapy.Spider):
                         parsedTitle = parsedTitle.group(0).strip()
                     else:
                         parsedTitle = '' 
-                    parsedTitle = parsedTitle + re.search('fix-spelling.>[a-z,A-Z,\-,\ ,\/,0-9,+,\.,(,),!]+<', fullTitle).group(0).split(">")[1].split("<")[0]
+                    parsedTitle = parsedTitle + " " + re.search('fix-spelling.>[a-z,A-Z,\-,\ ,\/,0-9,+,\.,(,),!]+<', fullTitle).group(0).split(">")[1].split("<")[0]
                 except:
                     parsedTitle = fullTitle
-                
+
+
+                description = response.css('#description p').extract_first();
+                category = response.css('#breadcrumbs li').extract_first();
+                subCategories = response.css('#breadcrumbs li').extract_first();
+
                 yield{
                 #    'image',
-                    'title': parsedTitle
-                    #'description',
-                    #'category',
+                    'title': parsedTitle,
+                    'description': description,
+                    'category': category
                 #    'subcategories',
                 #    'technical-data'
                 }
