@@ -51,4 +51,5 @@ class KarchersiteSpider(scrapy.Spider):
                 }
             else:
                 for href in response.css("a::attr('href')"):
-                    yield response.follow(href, callback=self.parse)
+                    if href.find('professional') > -1:
+                        yield response.follow(href, callback=self.parse)
