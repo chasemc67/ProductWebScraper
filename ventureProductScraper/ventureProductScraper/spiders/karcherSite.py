@@ -8,6 +8,7 @@ import scrapy
 import re
 
 from scrapy.utils.response import open_in_browser
+from ventureProductScraper.items import VentureproductscraperItem
 
 class KarchersiteSpider(scrapy.Spider):
     name = 'karcherSite'
@@ -46,15 +47,18 @@ class KarchersiteSpider(scrapy.Spider):
     def parse(self, response):
         if response.url.find('professional') > -1:
             if response.css('.product-box.product-salesdata'):
-                yield{
-                #    'image',
-                    'productUrl': response.url, 
-                    'title': self.parsedTitleFromResp(response),
-                    'description': self.parsedDescFromResp(response),
-                    'category': self.parsedCatFromResp(response),
-                    'subcategories': self.parsedSubCatsFromResp(response)
-                #    'technical-data'
-                }
+                img_url = response.css('.product-image a::attr("href")').extract_first()[2:]
+                #yield {'image_urls': [img_url]}
+                yield{'image_urls:': VentureproductscraperItem([img_url])}
+                # yield{
+                #     #    'technical-data'
+                #     'image_urls': [img_url],
+                #     'productUrl': response.url, 
+                #     'title': self.parsedTitleFromResp(response),
+                #     'description': self.parsedDescFromResp(response),
+                #     'category': self.parsedCatFromResp(response),
+                #     'subcategories': self.parsedSubCatsFromResp(response)
+                # }
             else:
                 for href in response.css("a::attr('href')"):
                     if href.extract().find('professional') > -1:
