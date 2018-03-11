@@ -8,7 +8,6 @@ import scrapy
 import re
 
 from scrapy.utils.response import open_in_browser
-from ventureProductScraper.items import VentureproductscraperItem
 
 class KarchersiteSpider(scrapy.Spider):
     name = 'karcherSite'
@@ -47,25 +46,64 @@ class KarchersiteSpider(scrapy.Spider):
     def parse(self, response):
         if response.url.find('professional') > -1:
             if response.css('.product-box.product-salesdata'):
-                img_url = response.css('.product-image a::attr("href")').extract_first()[2:]
-                #yield {'image_urls': [img_url]}
-                for elem in response.xpath("//img"):
-                    if elem.xpath("@src").extract_first():
-                        #img_url = "https:" + elem.xpath("@src").extract_first()
-                        img_url = elem.xpath("@src").extract_first()
-                    #yield VentureproductscraperItem(img_urls=[img_url])
-                    yield {'file_urls': [img_url]}
-
-                #yield VentureproductscraperItem(img_urls=[img_url])
-                # yield{
-                #     #    'technical-data'
-                #     'image_urls': [img_url],
-                #     'productUrl': response.url, 
-                #     'title': self.parsedTitleFromResp(response),
-                #     'description': self.parsedDescFromResp(response),
-                #     'category': self.parsedCatFromResp(response),
-                #     'subcategories': self.parsedSubCatsFromResp(response)
-                # }
+                img_url = "https:" + response.css('.product-image a::attr("href")').extract_first()
+                yield{
+                    #    'technical-data'
+                    # 'image_urls': [img_url],
+                    # 'productUrl': response.url, 
+                    # 'title': self.parsedTitleFromResp(response),
+                    # 'description': self.parsedDescFromResp(response),
+                    # 'category': self.parsedCatFromResp(response),
+                    # 'subcategories': self.parsedSubCatsFromResp(response),
+                    
+                    # shopify specific tags https://help.shopify.com/manual/products/import-export
+                    "Handle": self.parsedTitleFromResp(response),
+                    "Title": self.parsedTitleFromResp(response),
+                    "Body (HTML)": "<p>"+self.parsedDescFromResp(response)+"</p>",
+                    "Vendor": "Karcher",
+                    "Type": "cleaning equipment",
+                    "Tags": "karcher, equipment,"+self.parsedCatFromResp(response),
+                    "Published": "FALSE",
+                    "Option1 Name": "Title",
+                    "Option1 Value": "Default Title",
+                    "Option2 Name": "",
+                    "Option2 Value": "",
+                    "Option3 Name": "",
+                    "Option3 Value": "",
+                    "Variant SKU": "",
+                    "Variant Grams": "",
+                    "Variant Inventory Tracker": "",
+                    "Variant Inventory Qty": "1",
+                    "Variant Inventory Policy": "deny",
+                    "Variant Fulfillment Service": "manual",
+                    "Variant Price": "",
+                    "Variant Compare At Price": "",
+                    "Variant Requires Shipping": "",
+                    "Variant Taxable": "",
+                    "Variant Barcode": "",
+                    "Image Src": img_url,
+                    "Image Position": "1",
+                    "Image Alt Text": "",
+                    "Gift Card": "",
+                    "SEO Title": "",
+                    "SEO Description": "",
+                    "Google Shopping / Google Product Category": "",
+                    "Google Shopping / Gender": "",
+                    "Google Shopping / Age Group": "",
+                    "Google Shopping / MPN": "",
+                    "Google Shopping / AdWords Grouping": "",
+                    "Google Shopping / AdWords Labels": "",
+                    "Google Shopping / Condition": "",
+                    "Google Shopping / Custom Product": "",
+                    "Google Shopping / Custom Label 0": "",
+                    "Google Shopping / Custom Label 1": "",
+                    "Google Shopping / Custom Label 2": "",
+                    "Google Shopping / Custom Label 3": "",
+                    "Google Shopping / Custom Label 4": "",
+                    "Variant Image": "",
+                    "Variant Weight Unit": "",
+                    "Variant Tax Code": ""
+                }
             else:
                 for href in response.css("a::attr('href')"):
                     if href.extract().find('professional') > -1:
