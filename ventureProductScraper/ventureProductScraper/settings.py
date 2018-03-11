@@ -65,12 +65,10 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'ventureProductScraper.pipelines.VentureproductscraperPipeline': 300,
+    'ventureProductScraper.pipelines.VentureproductscraperPipeline': 300
     #'scrapy.pipelines.images.ImagesPipeline': 1
 }
-IMAGES_STORE = {
-    '/Users/chasemccarty/Code/Python/Scraper/ventureProductScraper/ventureProductScraper/spiders/images'
-}
+FILES_STORE = '/Users/chasemccarty/Code/Python/Scraper/ventureProductScraper/ventureProductScraper/output'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html

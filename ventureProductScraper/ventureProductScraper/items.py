@@ -8,6 +8,5 @@
 import scrapy
 
 class VentureproductscraperItem(scrapy.Item):
-    image_urls = scrapy.Field()
-    images = scrapy.Field()
+    file_urls = scrapy.Field()
     pass

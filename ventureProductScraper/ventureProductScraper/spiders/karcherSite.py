@@ -49,7 +49,14 @@ class KarchersiteSpider(scrapy.Spider):
             if response.css('.product-box.product-salesdata'):
                 img_url = response.css('.product-image a::attr("href")').extract_first()[2:]
                 #yield {'image_urls': [img_url]}
-                yield{'image_urls:': VentureproductscraperItem([img_url])}
+                for elem in response.xpath("//img"):
+                    if elem.xpath("@src").extract_first():
+                        #img_url = "https:" + elem.xpath("@src").extract_first()
+                        img_url = elem.xpath("@src").extract_first()
+                    #yield VentureproductscraperItem(img_urls=[img_url])
+                    yield {'file_urls': [img_url]}
+
+                #yield VentureproductscraperItem(img_urls=[img_url])
                 # yield{
                 #     #    'technical-data'
                 #     'image_urls': [img_url],
