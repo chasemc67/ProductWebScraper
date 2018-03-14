@@ -21,14 +21,27 @@ class KarchersiteSpider(scrapy.Spider):
             parsedTitle = re.search('\ {2,}[a-z,A-Z,\-, \ ]+\ {2,}', fullTitle)
             if parsedTitle:
                 parsedTitle = parsedTitle.group(0).strip()
-            parsedTitle = parsedTitle + " " + re.search('fix-spelling.>[a-z,A-Z,\-,\ ,\/,0-9,+,\.,(,),!]+<', fullTitle).group(0).split(">")[1].split("<")[0]
+            parsedTitle = parsedTitle + " " + re.search('fix-spelling.>[^<]+<', fullTitle).group(0).split(">")[1].split("<")[0]
+            parsedTitle = parsedTitle.strip()
         except:
             parsedTitle = fullTitle
         return parsedTitle
 
+    def parsedHandleFromResp(self, response):
+        handle = self.parsedTitleFromResp(response)
+        #remove stray html
+        #handle = re.sub('\([^\)]+\)', "", handle) # delete anything between brackets
+        handle = handle.replace(" ", "-") # replace spaces with - 
+        handle = handle.replace("/", "-") # replace spaces with - # replace / with - 
+        handle = re.sub('[^a-zA-Z0-9-]+', "", handle)# replace anything non alpha-numberic or dashed or space with nothing
+        # test with uniq -d
+        # only known offender right now is Commercial Carpet Extractor Puzzi
+        return handle
+
     def parsedDescFromResp(self, response):
         description = response.css('#description p').extract_first()
-        description = description.split('<p property=\"description\">')[1].split('</p>')[0]
+        if description:
+            description = description.split('<p property=\"description\">')[1].split('</p>')[0]
         return description
 
     def parsedCatFromResp(self, response):
@@ -57,7 +70,7 @@ class KarchersiteSpider(scrapy.Spider):
                     # 'subcategories': self.parsedSubCatsFromResp(response),
                     
                     # shopify specific tags https://help.shopify.com/manual/products/import-export
-                    "Handle": self.parsedTitleFromResp(response),
+                    "Handle": self.parsedHandleFromResp(response),
                     "Title": self.parsedTitleFromResp(response),
                     "Body (HTML)": "<p>"+self.parsedDescFromResp(response)+"</p>",
                     "Vendor": "Karcher",
