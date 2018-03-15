@@ -57,7 +57,7 @@ class KarchersiteSpider(scrapy.Spider):
                     
                     # shopify specific tags https://help.shopify.com/manual/products/import-export
                     "Handle": self.parsedHandleFromResp(response), # handles and titles with slashes dont work
-                    "Title": self.parsedTitleFromResp(response),  # Make sure vital oxide looks good on shopify
+                    "Title": "Karcher " + self.parsedTitleFromResp(response),  # Make sure vital oxide looks good on shopify
                     "Body (HTML)": "<p>"+self.parsedDescFromResp(response)+"</p>",
                     "Vendor": "Karcher",
                     "Type": self.parsedCatFromResp(response),
