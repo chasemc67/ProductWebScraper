@@ -7,6 +7,8 @@
 import scrapy
 import re
 
+from bs4 import BeautifulSoup
+
 from scrapy.utils.response import open_in_browser
 
 class KarchersiteSpider(scrapy.Spider):
@@ -15,68 +17,52 @@ class KarchersiteSpider(scrapy.Spider):
     start_urls = ['https://www.kaercher.com/us/professional.html/']
 
     def parsedTitleFromResp(self, response):
-        fullTitle = response.css('.product h1').extract_first()
-        parsedTitle = ''
-        try:
-            parsedTitle = re.search('\ {2,}[a-z,A-Z,\-, \ ]+\ {2,}', fullTitle)
-            if parsedTitle:
-                parsedTitle = parsedTitle.group(0).strip()
-            parsedTitle = parsedTitle + " " + re.search('fix-spelling.>[^<]+<', fullTitle).group(0).split(">")[1].split("<")[0]
-            parsedTitle = parsedTitle.strip()
-        except:
-            parsedTitle = fullTitle
-        return parsedTitle
+        title = BeautifulSoup(response.css('.product h1').extract_first(), 'lxml').get_text().strip()
+        title = re.sub(" +", " ", title) # remove doublespaces
+        return title
 
     def parsedHandleFromResp(self, response):
         handle = self.parsedTitleFromResp(response)
-        #remove stray html
-        #handle = re.sub('\([^\)]+\)', "", handle) # delete anything between brackets
         handle = handle.replace(" ", "-") # replace spaces with - 
         handle = handle.replace("/", "-") # replace spaces with - # replace / with - 
         handle = re.sub('[^a-zA-Z0-9-]+', "", handle)# replace anything non alpha-numberic or dashed or space with nothing
-        # test with uniq -d
         # only known offender right now is Commercial Carpet Extractor Puzzi
         return handle
 
     def parsedDescFromResp(self, response):
-        description = response.css('#description p').extract_first()
-        if description:
-            description = description.split('<p property=\"description\">')[1].split('</p>')[0]
+        description = BeautifulSoup(response.css('#description p').extract_first(), 'lxml').get_text().strip()
         return description
 
     def parsedCatFromResp(self, response):
         category = response.css('#breadcrumbs li').extract();
-        category = category[2].split('property=\"name\">')[1].split('</span')[0]
+        category = BeautifulSoup(category[1], 'lxml').get_text().strip()
         return category        
 
     def parsedSubCatsFromResp(self, response):
         subCategories = response.css('#breadcrumbs li').extract();
         finalCats = []
-        for i in range(3,len(subCategories)-1):
-            finalCats.append(subCategories[i].split('property=\"name\">')[1].split('</span')[0])
-        return str(finalCats)
+        for i in range(2,len(subCategories)-1):
+            finalCats.append(BeautifulSoup(subCategories[2], 'lxml').get_text().strip())
+        if len(finalCats) == 0:
+            return ""
+        return ", " + ','.join(finalCats)  #put a leading comma because of defaults, then new ones
 
     def parse(self, response):
         if response.url.find('professional') > -1:
             if response.css('.product-box.product-salesdata'):
                 img_url = "https:" + response.css('.product-image a::attr("href")').extract_first()
                 yield{
-                    #    'technical-data'
-                    # 'image_urls': [img_url],
-                    # 'productUrl': response.url, 
-                    # 'title': self.parsedTitleFromResp(response),
-                    # 'description': self.parsedDescFromResp(response),
-                    # 'category': self.parsedCatFromResp(response),
-                    # 'subcategories': self.parsedSubCatsFromResp(response),
+                    #debug
+                    #'productUrl': response.url, 
                     
                     # shopify specific tags https://help.shopify.com/manual/products/import-export
-                    "Handle": self.parsedHandleFromResp(response),
-                    "Title": self.parsedTitleFromResp(response),
+                    "Handle": self.parsedHandleFromResp(response), # handles and titles with slashes dont work
+                    "Title": self.parsedTitleFromResp(response),  # Make sure vital oxide looks good on shopify
                     "Body (HTML)": "<p>"+self.parsedDescFromResp(response)+"</p>",
                     "Vendor": "Karcher",
-                    "Type": "cleaning equipment",
-                    "Tags": "karcher, equipment,"+self.parsedCatFromResp(response),
-                    "Published": "FALSE",
+                    "Type": self.parsedCatFromResp(response),
+                    "Tags": "karcher, equipment"+self.parsedSubCatsFromResp(response),
+                    "Published": "TRUE",
                     "Option1 Name": "Title",
                     "Option1 Value": "Default Title",
                     "Option2 Name": "",
