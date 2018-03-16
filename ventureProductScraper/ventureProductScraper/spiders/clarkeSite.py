@@ -12,12 +12,12 @@ from bs4 import BeautifulSoup
 from scrapy.utils.response import open_in_browser
 
 class KarchersiteSpider(scrapy.Spider):
-    name = 'karcherSite'
-    # allowed_domains = ['kaercher.com/']
-    start_urls = ['https://www.kaercher.com/us/professional.html/']
+    name = 'ClarkeSite'
+    start_urls = ['http://www.clarkeus.com/products/autoscrubbers.aspx']
 
     def getTitle(self, response):
-        title = BeautifulSoup(response.css('.product h1').extract_first(), 'lxml').get_text().strip()
+        html = response.css('.titleHolder h1').extract_first()
+        title = BeautifulSoup(html, 'lxml').get_text().strip()
         title = re.sub(" +", " ", title) # remove doublespaces
         return title
 
@@ -30,38 +30,48 @@ class KarchersiteSpider(scrapy.Spider):
         return handle
 
     def getDesc(self, response):
-        description = BeautifulSoup(response.css('#description p').extract_first(), 'lxml').get_text().strip()
-        return description
+        # everything up until the first <p> in this the features
+        featureDesc = response.css('#middlearea_0_body_0_TabContainer p').extract_first()
+        finalArray = []
+
+        htmlArray = response.css('p').extract()
+        for p in htmlArray:
+            if not p == featureDesc:
+                finalArray.append(p)
+        return "\n".join(p)
 
     def getType(self, response):
-        category = response.css('#breadcrumbs li').extract();
-        category = BeautifulSoup(category[1], 'lxml').get_text().strip()
-        return category        
+        return response.url.split("clarkeus.com/products/")[1].split("/")[0]
 
     def getTags(self, response):
-        subCategories = response.css('#breadcrumbs li').extract();
-        finalCats = []
-        for i in range(2,len(subCategories)-1):
-            finalCats.append(BeautifulSoup(subCategories[2], 'lxml').get_text().strip())
-        if len(finalCats) == 0:
-            return ""
-        return ", " + ','.join(finalCats)  #put a leading comma because of defaults, then new ones
+        return ""
+
+    def isProductPage(self, response):
+        # Checks if a page has a prodct on it which should be scraped
+        return response.css(".titleHolder")
+
+    def inDomain(self, url):
+        # tests a domain to see if it should be dropped
+        return url.find('products') > -1
 
     def parse(self, response):
-        if response.url.find('professional') > -1:
-            if response.css('.product-box.product-salesdata'):
-                img_url = "https:" + response.css('.product-image a::attr("href")').extract_first()
+        # yield {
+        #     'productUrl': response.url
+        # }
+        if self.inDomain(response.url):
+            if self.isProductPage(response):
+                img_url = 'http://www.clarkeus.com' + response.css('img::attr("src")').extract_first()
                 yield{
                     #debug
-                    #'productUrl': response.url, 
+                    'productUrl': response.url, 
                     
                     # shopify specific tags https://help.shopify.com/manual/products/import-export
                     "Handle": self.getHandle(response), # handles and titles with slashes dont work
-                    "Title": "Karcher " + self.getTitle(response),  # Make sure vital oxide looks good on shopify
+                    "Title": "Clarke " + self.getTitle(response),  # Make sure vital oxide looks good on shopify
                     "Body (HTML)": "<p>"+self.getDesc(response)+"</p>",
-                    "Vendor": "Karcher",
+                    "Vendor": "Clarke",
                     "Type": self.getType(response),
-                    "Tags": "karcher, equipment"+self.getTags(response),
+                    "Tags": "Clarke, equipment"+self.getTags(response),
                     "Published": "TRUE",
                     "Option1 Name": "Title",
                     "Option1 Value": "Default Title",
@@ -103,7 +113,6 @@ class KarchersiteSpider(scrapy.Spider):
                     "Variant Weight Unit": "",
                     "Variant Tax Code": ""
                 }
-            else:
-                for href in response.css("a::attr('href')"):
-                    if href.extract().find('professional') > -1:
-                        yield response.follow(href, callback=self.parse)
+        for href in response.css("a::attr('href')"):
+            if href.extract().find('products') > -1:
+                yield response.follow(href, callback=self.parse)
