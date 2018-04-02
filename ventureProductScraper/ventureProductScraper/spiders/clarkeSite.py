@@ -15,19 +15,28 @@ class KarchersiteSpider(scrapy.Spider):
     name = 'ClarkeSite'
     start_urls = ['http://www.clarkeus.com/products/autoscrubbers.aspx']
 
-    def getTitle(self, response):
-        html = response.css('.titleHolder h1').extract_first()
-        title = BeautifulSoup(html, 'lxml').get_text().strip()
-        title = re.sub(" +", " ", title) # remove doublespaces
-        return title
+    def inDomain(self, url):
+        # tests a domain to see if it should be dropped
+        return url.find('products') > -1
+
+    def isProductPage(self, response):
+        # Checks if a page has a prodct on it which should be scraped
+        return response.css(".reqbutton")
 
     def getHandle(self, response):
-        handle = self.getTitle(response)
+        urlPieces = response.url.split("/")
+        handle = urlPieces[len(urlPieces)-1].split(".aspx")[0]
         handle = handle.replace(" ", "-") # replace spaces with - 
         handle = handle.replace("/", "-") # replace spaces with - # replace / with - 
         handle = re.sub('[^a-zA-Z0-9-]+', "", handle)# replace anything non alpha-numberic or dashed or space with nothing
         # only known offender right now is Commercial Carpet Extractor Puzzi
         return handle
+
+    def getTitle(self, response):
+        html = response.css('.titleHolder h1').extract_first()
+        title = BeautifulSoup(html, 'lxml').get_text().strip()
+        title = re.sub(" +", " ", title) # remove doublespaces
+        return title
 
     def getDesc(self, response):
         # everything up until the first <p> in this the features
@@ -45,14 +54,6 @@ class KarchersiteSpider(scrapy.Spider):
 
     def getTags(self, response):
         return ""
-
-    def isProductPage(self, response):
-        # Checks if a page has a prodct on it which should be scraped
-        return response.css(".titleHolder")
-
-    def inDomain(self, url):
-        # tests a domain to see if it should be dropped
-        return url.find('products') > -1
 
     def parse(self, response):
         # yield {
