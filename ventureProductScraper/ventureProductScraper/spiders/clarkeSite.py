@@ -15,21 +15,20 @@ class KarchersiteSpider(scrapy.Spider):
     name = 'ClarkeSite'
     start_urls = ['http://www.clarkeus.com/products/autoscrubbers.aspx']
 
-    def inDomain(self, url):
+    def inDomain(self, url): # Known Finished
         # tests a domain to see if it should be dropped
         return url.find('products') > -1
 
-    def isProductPage(self, response):
+    def isProductPage(self, response): #known getting all products
         # Checks if a page has a prodct on it which should be scraped
         return response.css(".reqbutton")
 
-    def getHandle(self, response):
+    def getHandle(self, response): #known uniq handles
         urlPieces = response.url.split("/")
         handle = urlPieces[len(urlPieces)-1].split(".aspx")[0]
         handle = handle.replace(" ", "-") # replace spaces with - 
         handle = handle.replace("/", "-") # replace spaces with - # replace / with - 
         handle = re.sub('[^a-zA-Z0-9-]+', "", handle)# replace anything non alpha-numberic or dashed or space with nothing
-        # only known offender right now is Commercial Carpet Extractor Puzzi
         return handle
 
     def getTitle(self, response):
