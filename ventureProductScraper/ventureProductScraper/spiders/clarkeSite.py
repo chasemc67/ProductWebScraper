@@ -38,14 +38,19 @@ class KarchersiteSpider(scrapy.Spider):
         return title
 
     def getDesc(self, response):
-        page = response.css('body').extract_first()
-        productText = page.split('<!-- START ProductDetail.ascx -->')[1].split('<!-- STOP ProductDetail.ascx -->')[0]
-        productText = productText.replace("strong", "p")
-        soup =  BeautifulSoup(productText, 'lxml')
-        text = ""
-        for tag in soup.findAll('p'):
-            text += tag.getText() + "<br>"
-        return text
+        # page = response.css('body').extract_first()
+        # productText = page.split('<!-- START ProductDetail.ascx -->')[1].split('<!-- STOP ProductDetail.ascx -->')[0]
+        # productText = productText.replace("strong", "p")
+        # productText = productText.replace("span", "p")
+        # productText = productText.replace("h1", "p")
+        # productText = productText.replace("h2", "p")
+        # productText = productText.replace("h3", "p")
+        # soup =  BeautifulSoup(productText, 'lxml')
+        # text = ""
+        # for tag in soup.findAll('p'):
+        #     text += tag.getText() + "<br>"
+        # return text
+        return response.url
         
 
     def getType(self, response):
