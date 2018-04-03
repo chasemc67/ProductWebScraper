@@ -38,15 +38,15 @@ class KarchersiteSpider(scrapy.Spider):
         return title
 
     def getDesc(self, response):
-        # everything up until the first <p> in this the features
-        featureDesc = response.css('#middlearea_0_body_0_TabContainer p').extract_first()
-        finalArray = []
-
-        htmlArray = response.css('p').extract()
-        for p in htmlArray:
-            if not p == featureDesc:
-                finalArray.append(p)
-        return "\n".join(p)
+        page = response.css('body').extract_first()
+        productText = page.split('<!-- START ProductDetail.ascx -->')[1].split('<!-- STOP ProductDetail.ascx -->')[0]
+        productText = productText.replace("strong", "p")
+        soup =  BeautifulSoup(productText, 'lxml')
+        text = ""
+        for tag in soup.findAll('p'):
+            text += tag.getText() + "<br>"
+        return text
+        
 
     def getType(self, response):
         return response.url.split("clarkeus.com/products/")[1].split("/")[0]
