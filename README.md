@@ -1,8 +1,12 @@
-https://www.analyticsvidhya.com/blog/2017/07/web-scraping-in-python-using-scrapy/
+### Web Scraper for automation product scraping from VentureSupply's vendor sites, into Shopify
 
-conda install -c conda-forge scrapy
+#### Installation
+`conda install -c conda-forge scrapy`  
+`pip install scrapy`  
 
-pip install scrapy
-
-run:
-scrapy runspider clarkeSite.py -o clarkeSite.json
+#### Running
+`scrapy runspider clarkeSpider.py -o clarkeSite.json`
+  
+  
+  
+For handy debug information, see [this guide](https://www.analyticsvidhya.com/blog/2017/07/web-scraping-in-python-using-scrapy/)
