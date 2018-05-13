@@ -15,14 +15,16 @@ class KarchersiteSpider(scrapy.Spider):
     name = 'TorkSite'
     start_urls = ['https://www.torkusa.com/products/dispenser/paper-towel/']
 
+    #visitedUrls = [];
+
     def inDomain(self, url): # Known Finished
         # tests a domain to see if it should be dropped
-        return (url.find('products') > -1 and url.find('search') == -1)
+        return (url.find('products') > -1)
 
     def isProductPage(self, response): #known getting all products
         # Checks if a page has a prodct on it which should be scraped
         #<a href="#productDataTab" class="tab tabLink"><span class="icon-checkbox align-productDataTab"></span>
-        return response.css("a::attr('href')").extract().index('#productDataTab')
+        return '#productDataTab' in response.css("a::attr('href')").extract()
                     
 
     def getHandle(self, response): #known uniq handles
@@ -120,5 +122,7 @@ class KarchersiteSpider(scrapy.Spider):
                     # "Variant Tax Code": ""
                 }
         for href in response.css("a::attr('href')"):
-            if self.inDomain(href.extract()) :
+            yield{'url': response.url}
+            if self.inDomain(href.extract()):
+                #visitedUrls.append(href.extract())
                 yield response.follow(href, callback=self.parse)
