@@ -1,4 +1,9 @@
 ### Web Scraper for automation product scraping from VentureSupply's vendor sites, into Shopify
+  
+Supports:
+* [Karcher](https://www.kaercher.com/int/)
+* [Clarke](http://www.clarkeus.com/)
+* [Tork] (https://www.torkusa.com/)
 
 #### Installation
 `conda install -c conda-forge scrapy`  
