@@ -18,3 +18,4 @@ Supports:
   
   
 For handy debug information, see [this guide](https://www.analyticsvidhya.com/blog/2017/07/web-scraping-in-python-using-scrapy/)
+ 
