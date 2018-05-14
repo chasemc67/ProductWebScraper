@@ -1,4 +1,7 @@
-### Web Scraper for automation product scraping from VentureSupply's vendor sites, into Shopify
+### Automate Product Scraping from VentureSupply's Vendor Sites
+
+A simple web scraper, written using scrapy.  
+Visits vendors sites, scrapes down all of their product information, and prepares a CSV file for upload into shopify.  
   
 Supports:
 * [Karcher](https://www.kaercher.com/int/)
